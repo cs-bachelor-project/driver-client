@@ -31,8 +31,12 @@
           <div class="my-sm-auto my-2 col-sm"><a :href="`tel:${detail.phone}`" class="btn btn-link"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#527bff" width="20px" height="20px"><path d="M0 0h24v24H0z" fill="none"/><path d="M20.01 15.38c-1.23 0-2.42-.2-3.53-.56-.35-.12-.74-.03-1.01.24l-1.57 1.97c-2.83-1.35-5.48-3.9-6.89-6.83l1.95-1.66c.27-.28.35-.67.24-1.02-.37-1.11-.56-2.3-.56-3.53 0-.54-.45-.99-.99-.99H4.19C3.65 3 3 3.24 3 3.99 3 13.28 10.73 21 20.01 21c.71 0 .99-.63.99-1.18v-3.45c0-.54-.45-.99-.99-.99z"/></svg> {{detail.phone}}</a></div>
           <div class="my-sm-auto my-2 col-sm pointer" @click="$swal(detail.task.note)">{{subNote(detail.task.note)}}</div>
           <div class="my-sm-auto my-2 col-sm-1 text-right">
-            <div class="pointer" title="Mark as completed" @click="complete(index, detail.id)" v-if="detail.completed_at == null"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="black" width="28px" height="28px"><path d="M0 0h24v24H0V0z" fill="none"/><path d="M6 2v6h.01L6 8.01 10 12l-4 4 .01.01H6V22h12v-5.99h-.01L18 16l-4-4 4-3.99-.01-.01H18V2H6zm10 14.5V20H8v-3.5l4-4 4 4zm-4-5l-4-4V4h8v3.5l-4 4z"/></svg></div>
-            <div v-if="detail.completed_at != null" :title="utcToLocal(detail.completed_at)"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="green" width="28px" height="28px"><path d="M0 0h24v24H0V0z" fill="none"/><path d="M19.77 5.03l1.4 1.4L8.43 19.17l-5.6-5.6 1.4-1.4 4.2 4.2L19.77 5.03m0-2.83L8.43 13.54l-4.2-4.2L0 13.57 8.43 22 24 6.43 19.77 2.2z"/></svg></div>
+            <div>
+              <span class="pointer" title="Mark as cancelled" @click="cancel(index, detail.task.id)" v-if="detail.action == 'pick'"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="black" width="28px" height="28px"><path d="M0 0h24v24H0V0z" fill="none"/><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM8 9h8v10H8V9zm7.5-5l-1-1h-5l-1 1H5v2h14V4z"/></svg></span>
+              
+              <span class="pointer" title="Mark as completed" @click="complete(index, detail.id)" v-if="detail.completed_at == null"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="black" width="28px" height="28px"><path d="M0 0h24v24H0V0z" fill="none"/><path d="M6 2v6h.01L6 8.01 10 12l-4 4 .01.01H6V22h12v-5.99h-.01L18 16l-4-4 4-3.99-.01-.01H18V2H6zm10 14.5V20H8v-3.5l4-4 4 4zm-4-5l-4-4V4h8v3.5l-4 4z"/></svg></span>
+              <span v-if="detail.completed_at != null" :title="utcToLocal(detail.completed_at)"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="green" width="28px" height="28px"><path d="M0 0h24v24H0V0z" fill="none"/><path d="M19.77 5.03l1.4 1.4L8.43 19.17l-5.6-5.6 1.4-1.4 4.2 4.2L19.77 5.03m0-2.83L8.43 13.54l-4.2-4.2L0 13.57 8.43 22 24 6.43 19.77 2.2z"/></svg></span>
+            </div>
           </div>
         </div>
       </div>
@@ -61,12 +65,9 @@ export default {
         
       this.entries.sort((a, b) => (a.scheduled_at > b.scheduled_at) ? 1 : -1)
     }).listen('.unassigned', (data) => {
-      delete data.socket
-      data = Object.values(data)
-
       this.$toast.success(`${data.person_name} was removed`)
 
-      this.entries = this.entries.filter(entry => entry.task.id !== data.id) 
+      this.entries = this.entries.filter(entry => entry.task.id !== data.id)
     }).listen('.updated', (data) => {
       delete data.socket
       data = Object.values(data)
@@ -115,6 +116,35 @@ export default {
               this.entries[index].completed_at = this.moment(box.value).utc()
               this.$toast.success('Marked as completed')
             }
+        }
+      } catch (error) {
+        this.$toast.error('Sorry an error occurred')
+      }
+    },
+    async cancel(index, id) {
+      try {
+        let box = await this.$swal({
+          title: 'Why couldn\'t you pick up the passenger?',
+          input: 'select',
+            inputOptions: {
+            'Cancelled on site': 'Cancelled on site',
+          },
+          showCancelButton: true,
+          inputValidator: value => {
+            if (!value) {
+              return 'Reason missing'
+            }
+          }
+        })
+
+        if (box.value) {
+          let res = await this.$axios.post(`drivers/tasks/${id}/cancellations`, {reason: box.value})
+
+          if(res) {
+            this.$toast.success('Marked as cancelled')
+
+            this.entries = this.entries.filter(entry => entry.task.id !== id)
+          }
         }
       } catch (error) {
         this.$toast.error('Sorry an error occurred')
