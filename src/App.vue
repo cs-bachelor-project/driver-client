@@ -56,12 +56,14 @@ body {
   display: block;
   text-align: center !important;
   width: 100%;
+  padding: 3px 0;
   cursor: pointer;
   font-family: Roboto, sans-serif;
   font-size: 1.25rem;
   font-weight: 500;
   border: 0px solid #ced4da;
   border-radius: 0.25rem;
+  box-shadow: 0 1px 3px 1px #e6ebf1;
   transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
 }
 .pointer {
