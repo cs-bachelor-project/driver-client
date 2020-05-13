@@ -11,13 +11,38 @@ export default {
   },
   created() {
     if (this.isLoggedIn()) {
-      if (!this.hasAnyRole(['driver'])) {
-        this.logout()
+      if (!this.hasAnyRole(["driver"])) {
+        this.logout();
       }
 
-      window.Echo.private(`company.${this.getUserInfo().company_id}.msg`).listen('.company-msg', data => {
-        this.$swal(data.msg)
-      })
+      window.Echo.private(
+        `company.${this.getUserInfo().company_id}.msg`
+      ).listen(".company-msg", data => {
+        this.$swal(data.msg);
+      });
+
+      if (navigator.geolocation) {
+        // window.setInterval(() => {
+        //   navigator.geolocation.getCurrentPosition(res => {
+        //     publisher.publish(
+        //       `laravel_database_private-company.${
+        //         this.getUserInfo().company_id
+        //       }.msg`,
+        //       JSON.stringify({
+        //         event: "location",
+        //         data: {
+        //           user_id: this.getUserInfo().sub,
+        //           company_id: this.getUserInfo().company_id,
+        //           location: {
+        //             lat: res.coords.latitude,
+        //             lon: res.coords.longitude
+        //           }
+        //         }
+        //       })
+        //     );
+        //   }, 2000);
+        // });
+      }
     }
   }
 };
