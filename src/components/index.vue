@@ -151,6 +151,10 @@ export default {
       }
     },
     subNote(note, limit=75) {
+      if (!note) {
+        return
+      }
+
       if (note.length > limit) {
         return note.substring(0, limit) + '...'
       }
