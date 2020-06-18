@@ -28,7 +28,7 @@
           <div class="my-sm-auto my-2 col-sm">{{detail.task.person_name}}</div>
           <div class="my-sm-auto my-2 col-sm"><a :href='`https://www.google.com/maps/dir/Current+Location/${detail.street}+${detail.street_number}+${detail.postal}+${detail.city}`' target="_blank"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#527bff" width="20px" height="20px"><path d="M21.71 11.29l-9-9c-.39-.39-1.02-.39-1.41 0l-9 9c-.39.39-.39 1.02 0 1.41l9 9c.39.39 1.02.39 1.41 0l9-9c.39-.38.39-1.01 0-1.41zM14 14.5V12h-4v3H8v-4c0-.55.45-1 1-1h5V7.5l3.5 3.5-3.5 3.5z"/><path d="M0 0h24v24H0z" fill="none"/></svg> {{detail.street}} {{detail.street_number}} {{detail.postal}} {{detail.city}}</a></div>
           <div class="my-sm-auto my-2 col-sm" :title="utcToLocal(detail.scheduled_at)">{{utcToLocal(detail.scheduled_at).format('HH:mm')}} ({{utcToLocal(detail.scheduled_at).fromNow()}})</div>
-          <div class="my-sm-auto my-2 col-sm"><a :href="`tel:${detail.phone}`" class="btn btn-link"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#527bff" width="20px" height="20px"><path d="M0 0h24v24H0z" fill="none"/><path d="M20.01 15.38c-1.23 0-2.42-.2-3.53-.56-.35-.12-.74-.03-1.01.24l-1.57 1.97c-2.83-1.35-5.48-3.9-6.89-6.83l1.95-1.66c.27-.28.35-.67.24-1.02-.37-1.11-.56-2.3-.56-3.53 0-.54-.45-.99-.99-.99H4.19C3.65 3 3 3.24 3 3.99 3 13.28 10.73 21 20.01 21c.71 0 .99-.63.99-1.18v-3.45c0-.54-.45-.99-.99-.99z"/></svg> {{detail.phone}}</a></div>
+          <div class="my-sm-auto my-2 col-sm"><a :href="`tel:${detail.phone}`" v-if="detail.phone" class="btn btn-link"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#527bff" width="20px" height="20px"><path d="M0 0h24v24H0z" fill="none"/><path d="M20.01 15.38c-1.23 0-2.42-.2-3.53-.56-.35-.12-.74-.03-1.01.24l-1.57 1.97c-2.83-1.35-5.48-3.9-6.89-6.83l1.95-1.66c.27-.28.35-.67.24-1.02-.37-1.11-.56-2.3-.56-3.53 0-.54-.45-.99-.99-.99H4.19C3.65 3 3 3.24 3 3.99 3 13.28 10.73 21 20.01 21c.71 0 .99-.63.99-1.18v-3.45c0-.54-.45-.99-.99-.99z"/></svg> {{detail.phone}}</a> <span v-else></span></div>
           <div class="my-sm-auto my-2 col-sm pointer" @click="$swal(detail.task.note)">{{subNote(detail.task.note)}}</div>
           <div class="my-sm-auto my-2 col-sm-1 text-right">
             <div>
@@ -128,6 +128,8 @@ export default {
           input: 'select',
             inputOptions: {
             'Cancelled on site': 'Cancelled on site',
+            'Failed to appear': 'Failed to appear',
+            'Did not book': 'Did not book',
           },
           showCancelButton: true,
           inputValidator: value => {
